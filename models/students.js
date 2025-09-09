@@ -1,8 +1,7 @@
 // models/student.js
 class Student {
-  constructor(name, email, uid) {
+  constructor(name, uid) {
     this.name = name;
-    this.email = email;
     this.uid = uid;
   }
 }

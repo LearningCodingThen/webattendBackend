@@ -1,30 +1,33 @@
-// index.js
-require('dotenv').config();
 const express = require('express');
 const { createClient } = require('@supabase/supabase-js');
-const apiRoutes = require('./routes/api'); // Import the routes
+const cors = require('cors'); // Import the cors package
+require('dotenv').config();
+
+const apiRoutes = require('./routes/api');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Initialize Supabase client
+// Supabase Initialization
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// MIDDLEWARE
-// This is crucial for your POST routes to be able to read `req.body`
-app.use(express.json());
+// --- MIDDLEWARE ---
+// This is the crucial part to fix the CORS error.
+// It allows requests from your frontend's origin.
+app.use(cors({
+  origin: 'http://localhost:5173' // Replace with your frontend's actual URL if different
+}));
 
-// Use the API routes, passing the supabase client to them
+app.use(express.json()); // To parse JSON bodies
+
+// --- ROUTES ---
+// Pass the supabase client to your routes
 app.use('/api', apiRoutes(supabase));
 
-// A simple GET route for the homepage
-app.get('/', (req, res) => {
-  res.send('Hello, World! Your Express server is running.');
-});
-
-
 app.listen(port, () => {
-  console.log(`Server with Supabase listening at http://localhost:${port}`);
+  console.log(`Server is running on http://localhost:${port}`);
 });
+
+
