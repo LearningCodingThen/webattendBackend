@@ -1,33 +1,53 @@
-const express = require('express');
-const { createClient } = require('@supabase/supabase-js');
-const cors = require('cors'); // Import the cors package
+// index.js
 require('dotenv').config();
-
+const express = require('express');
+const cors = require('cors'); // Make sure cors is imported
+const { createClient } = require('@supabase/supabase-js');
 const apiRoutes = require('./routes/api');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Supabase Initialization
+// Initialize Supabase client
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// --- MIDDLEWARE ---
-// This is the crucial part to fix the CORS error.
-// It allows requests from your frontend's origin.
-app.use(cors({
-  origin: 'http://localhost:5173' // Replace with your frontend's actual URL if different
-}));
+// --- CORS CONFIGURATION FOR MULTIPLE ORIGINS ---
+// 1. Define your allowed origins in an array
+const allowedOrigins = [
+  'https://webattend.vercel.app',
+  'http://localhost:5173'
+];
 
-app.use(express.json()); // To parse JSON bodies
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  }
+};
 
-// --- ROUTES ---
-// Pass the supabase client to your routes
+// 2. Use the cors middleware with the new options
+app.use(cors(corsOptions));
+// ----------------------------------------------
+
+// MIDDLEWARE
+app.use(express.json());
+
+// Use the API routes
 app.use('/api', apiRoutes(supabase));
 
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+// A simple GET route for the homepage
+app.get('/', (req, res) => {
+  res.send('Hello, World! Your Express server is running.');
 });
 
-
+app.listen(port, () => {
+  console.log(`Server with Supabase listening at http://localhost:${port}`);
+});
