@@ -28,7 +28,7 @@ const apiRoutes = (supabase) => {
   // POST route to add an attendance record
   router.post('/attendance', async (req, res) => {
     // The date will be generated on the server to ensure it's always the current date.
-    const { id } = req.body;
+    const { id } = req.query;
 
     if (!id) {
       return res.status(400).json({ error: 'Student ID are required.' });
