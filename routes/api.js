@@ -187,7 +187,7 @@ router.post('/login', async (req, res) => {
     .select('*')
     .eq('email', email)
     .eq('password', password)
-    .single();
+    .limit(1);
 
   if (error) {
     console.error('Error during login:', error);
