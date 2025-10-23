@@ -58,7 +58,7 @@ router.post('/classDay', async (req, res) => {
 
   // Step 3: Prepare 33 attendance records (bulk insert instead of looping)
   const attendanceRows = Array.from({ length: 33 }, (_, i) => ({
-    student_id: i + 1, // assuming student IDs are 1–33
+    student_id: i + 1,
     date: date,
     status: 'absent',
   }));
